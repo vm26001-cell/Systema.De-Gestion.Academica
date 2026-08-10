@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Systema.De_Gestion.Academica.UI</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Systema.De Gestion.Academica.DAL\Systema.De Gestion.Academica.DAL.csproj" />
+    <ProjectReference Include="..\Systema.De Gestion.Academica.LN\Systema.De Gestion.Academica.LN.csproj" />
+    <ProjectReference Include="..\Systema.De Gestion.Academica.NE\Systema.De Gestion.Academica.NE.csproj" />
+  </ItemGroup>
+
+</Project>
