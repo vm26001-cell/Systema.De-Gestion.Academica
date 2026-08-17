@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Systema.De Gestion.Academica.NE\Systema.De Gestion.Academica.NE.csproj" />
   </ItemGroup>
 

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Systema.De_Gestion.Academica.DAL
 {
-    internal class CalificacionDAL
+    public class CalificacionDAL
     {
+         
     }
 }
