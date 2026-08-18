@@ -10,8 +10,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
     <PackageReference Include="Microsoft.SqlServer.Server" Version="1.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Systema.De Gestion.Academica.DAL\Systema.De Gestion.Academica.DAL.csproj" />
+    <ProjectReference Include="..\Systema.De Gestion.Academica.LN\Systema.De Gestion.Academica.LN.csproj" />
+    <ProjectReference Include="..\Systema.De Gestion.Academica.NE\Systema.De Gestion.Academica.NE.csproj" />
   </ItemGroup>
 
   <ItemGroup>

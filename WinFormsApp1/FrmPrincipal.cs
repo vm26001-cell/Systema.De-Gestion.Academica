@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
+using Systema.De.Gestion.Academica.UI;
 
-namespace WinFormsApp1
+namespace Systema.De_Gestion.Academica.UI
 {
     public partial class FrmPrincipal : Form
     {
@@ -12,97 +13,52 @@ namespace WinFormsApp1
 
         private void btnInicio_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "Bienvenido al Sistema de Gestión Académica",
-                "Inicio",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            MessageBox.Show("Inicio");
         }
 
         private void btnPanelPrincipal_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "Panel Principal",
-                "Sistema Académico",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            MessageBox.Show("Panel Principal");
         }
 
         private void btnResumen_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "Resumen del Sistema",
-                "Resumen",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            MessageBox.Show("Resumen");
         }
 
         private void btnEstudiantes_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "Módulo de Estudiantes",
-                "Estudiantes",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            FrmEstudiante formulario = new FrmEstudiante();
+            formulario.ShowDialog();
         }
 
         private void btnDocentes_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "Módulo de Docentes",
-                "Docentes",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            FrmDocente formulario = new FrmDocente();
+            formulario.ShowDialog();
         }
 
         private void btnMaterias_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "Módulo de Materias",
-                "Materias",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            FrmMateria formulario = new FrmMateria();
+            formulario.ShowDialog();
         }
 
         private void btnCalificaciones_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "Módulo de Calificaciones",
-                "Calificaciones",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            FrmCalificacion formulario = new FrmCalificacion();
+            formulario.ShowDialog();
         }
 
         private void btnAsistencia_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(
-                "Módulo de Asistencia",
-                "Asistencia",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Information
-            );
+            FrmAsistencia formulario = new FrmAsistencia();
+            formulario.ShowDialog();
         }
 
         private void btnSalir_Click(object sender, EventArgs e)
         {
-            DialogResult respuesta = MessageBox.Show(
-                "¿Está seguro que desea salir?",
-                "Salir",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
-
-            if (respuesta == DialogResult.Yes)
-            {
-                Application.Exit();
-            }
+            Application.Exit();
         }
     }
 }

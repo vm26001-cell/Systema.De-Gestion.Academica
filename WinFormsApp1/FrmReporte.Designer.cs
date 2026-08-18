@@ -360,11 +360,6 @@
             this.btnGenerar.UseVisualStyleBackColor =
                 false;
 
-            this.btnGenerar.Click +=
-                new System.EventHandler(
-                    this.btnGenerar_Click
-                );
-
             // ==========================================
             // VISTA PREVIA
             // ==========================================

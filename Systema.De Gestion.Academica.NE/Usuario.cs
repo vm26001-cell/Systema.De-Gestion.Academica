@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Systema.De_Gestion.Academica.NE
+namespace Systema.De_Gestion.Academica.EN
 {
-    internal class Usuario
+    public class Usuario
     {
+        public int IdUsuario { get; set; }
+        public string UsuarioNombre { get; set; }
+        public string Contrasena { get; set; }
+        public string Rol { get; set; }
     }
 }

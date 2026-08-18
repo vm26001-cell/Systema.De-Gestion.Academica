@@ -1,4 +1,4 @@
-﻿namespace Systema.De.Gestion.Academica.UI
+﻿namespace Systema.De_Gestion.Academica.UI
 {
     partial class FrmAsistencia
     {

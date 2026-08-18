@@ -1,4 +1,4 @@
-﻿namespace WinFormsApp1
+﻿namespace Systema.De_Gestion.Academica.UI
 {
     partial class FrmPrincipal
     {
