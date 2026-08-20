@@ -55,71 +55,106 @@ namespace Systema.De_Gestion.Academica.DAL
                     // ESTUDIANTE
                     // =========================================
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@id_estudiante",
-                        asistencia.IdEstudiante);
+                        System.Data.SqlDbType.Int
+                    ).Value = asistencia.IdEstudiante;
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@nombre_estudiante",
-                        asistencia.NombreEstudiante);
+                        System.Data.SqlDbType.VarChar,
+                        100
+                    ).Value =
+                        string.IsNullOrWhiteSpace(
+                            asistencia.NombreEstudiante)
+                        ? (object)System.DBNull.Value
+                        : asistencia.NombreEstudiante;
 
                     // =========================================
                     // GRADO
                     // =========================================
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@id_grado",
-                        asistencia.IdGrado);
+                        System.Data.SqlDbType.Int
+                    ).Value = asistencia.IdGrado;
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@nombre_grado",
-                        asistencia.NombreGrado);
+                        System.Data.SqlDbType.VarChar,
+                        50
+                    ).Value =
+                        string.IsNullOrWhiteSpace(
+                            asistencia.NombreGrado)
+                        ? (object)System.DBNull.Value
+                        : asistencia.NombreGrado;
 
                     // =========================================
                     // MATERIA
                     // =========================================
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@id_materia",
-                        asistencia.IdMateria);
+                        System.Data.SqlDbType.Int
+                    ).Value = asistencia.IdMateria;
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@nombre_materia",
-                        asistencia.NombreMateria);
+                        System.Data.SqlDbType.VarChar,
+                        100
+                    ).Value =
+                        string.IsNullOrWhiteSpace(
+                            asistencia.NombreMateria)
+                        ? (object)System.DBNull.Value
+                        : asistencia.NombreMateria;
 
                     // =========================================
                     // DOCENTE
                     // =========================================
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@id_docente",
-                        asistencia.IdDocente);
+                        System.Data.SqlDbType.Int
+                    ).Value = asistencia.IdDocente;
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@nombre_docente",
-                        asistencia.NombreDocente);
+                        System.Data.SqlDbType.VarChar,
+                        100
+                    ).Value =
+                        string.IsNullOrWhiteSpace(
+                            asistencia.NombreDocente)
+                        ? (object)System.DBNull.Value
+                        : asistencia.NombreDocente;
 
                     // =========================================
                     // FECHA
                     // =========================================
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@fecha",
-                        asistencia.Fecha);
+                        System.Data.SqlDbType.Date
+                    ).Value = asistencia.Fecha.Date;
 
                     // =========================================
                     // ESTADO
                     // =========================================
 
-                    comando.Parameters.AddWithValue(
+                    comando.Parameters.Add(
                         "@estado",
-                        asistencia.Estado);
+                        System.Data.SqlDbType.VarChar,
+                        20
+                    ).Value = asistencia.Estado;
 
                     // =========================================
-                    // EJECUTAR
+                    // ABRIR CONEXIÓN
                     // =========================================
 
                     conexion.Open();
+
+                    // =========================================
+                    // EJECUTAR INSERT
+                    // =========================================
 
                     int filasAfectadas =
                         comando.ExecuteNonQuery();

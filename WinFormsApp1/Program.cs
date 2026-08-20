@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using System;
 using System.Windows.Forms;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Systema.De_Gestion.Academica.UI
 {
@@ -10,7 +12,7 @@ namespace Systema.De_Gestion.Academica.UI
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FrmAsistencia());
+            Application.Run(new De_Gestion.Academica.UI.FrmLogin());
         }
     }
 }

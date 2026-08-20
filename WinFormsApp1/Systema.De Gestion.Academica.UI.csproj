@@ -36,4 +36,8 @@
     </EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Systema\De\Gestion\Academica\UI\" />
+  </ItemGroup>
+
 </Project>

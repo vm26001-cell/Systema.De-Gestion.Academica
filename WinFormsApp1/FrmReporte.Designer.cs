@@ -1,4 +1,4 @@
-﻿namespace Systema.De.Gestion.Academica.UI
+﻿namespace Systema.De_Gestion.Academica.UI
 {
     partial class FrmReporte
     {
@@ -359,6 +359,10 @@
 
             this.btnGenerar.UseVisualStyleBackColor =
                 false;
+            this.btnGenerar.Click +=
+    new System.EventHandler(
+        this.btnGenerar_Click
+    );
 
             // ==========================================
             // VISTA PREVIA

@@ -31,6 +31,10 @@ namespace Systema.De_Gestion.Academica.DAL
                     idRol = 3;
                     break;
 
+                case "Estudiante":
+                    idRol = 4;
+                    break;
+
                 default:
                     return null;
             }

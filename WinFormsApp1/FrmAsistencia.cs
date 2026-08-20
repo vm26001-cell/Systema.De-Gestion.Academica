@@ -144,26 +144,36 @@ namespace Systema.De_Gestion.Academica.UI
                     // CREAR ASISTENCIA
                     // ==========================================
 
-                    Asistencia asistencia =
-                        new Asistencia();
+                    Asistencia asistencia = new Asistencia();
 
-                    asistencia.IdEstudiante =
-                        idEstudiante;
+                    asistencia.IdEstudiante = idEstudiante;
+
+                    asistencia.NombreEstudiante =
+                        fila.Cells["Estudiante"].Value?.ToString();
 
                     asistencia.IdGrado =
-                        gradoId;
+                        cmbGrado.SelectedIndex + 1;
+
+                    asistencia.NombreGrado =
+                        cmbGrado.Text;
 
                     asistencia.IdMateria =
-                        materiaId;
+                        cmbMateria.SelectedIndex + 1;
+
+                    asistencia.NombreMateria =
+                        cmbMateria.Text;
 
                     asistencia.IdDocente =
-                        docenteId;
+                        cmbDocente.SelectedIndex + 1;
+
+                    asistencia.NombreDocente =
+                        cmbDocente.Text;
 
                     asistencia.Fecha =
                         dtpFecha.Value.Date;
 
                     asistencia.Estado =
-                        estado;
+                        fila.Cells["Estado"].Value?.ToString();
 
                     // ==========================================
                     // GUARDAR
@@ -191,7 +201,14 @@ namespace Systema.De_Gestion.Academica.UI
                     "Éxito",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
+
                 );
+                dgvAsistencia.Rows.Clear();
+
+                dgvAsistencia.Rows.Add("", "", "Presente");
+                dgvAsistencia.Rows.Add("", "", "Presente");
+                dgvAsistencia.Rows.Add("", "", "Presente");
+                dgvAsistencia.Rows.Add("", "", "Presente");
             }
             catch (Exception ex)
             {

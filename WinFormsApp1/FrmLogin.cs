@@ -19,6 +19,7 @@ namespace Systema.De_Gestion.Academica.UI
             cmbRol.Items.Add("Administrador");
             cmbRol.Items.Add("Docente");
             cmbRol.Items.Add("Padre");
+            cmbRol.Items.Add("Estudiante");
 
             cmbRol.SelectedIndex = 0;
         }
@@ -72,7 +73,7 @@ namespace Systema.De_Gestion.Academica.UI
                     MessageBox.Show(
                         "Bienvenido " + usuarioEncontrado.UsuarioNombre);
 
-                    FrmPortalAdministrador principal = new FrmPortalAdministrador();
+                    FrmPortalAdministrador principal = new FrmPortalAdministrador(rol);
                     principal.Show();
 
                     this.Hide();
