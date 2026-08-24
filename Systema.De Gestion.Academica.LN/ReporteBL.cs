@@ -1,4 +1,3 @@
-﻿using System;
 using System.Data;
 using Systema.De_Gestion.Academica.DAL;
 
@@ -6,60 +5,26 @@ namespace Systema.De_Gestion.Academica.BL
 {
     public class ReporteBL
     {
-        private readonly ReporteDAL reporteDAL;
+        private readonly ReporteDAL reporteDAL = new ReporteDAL();
 
-        public ReporteBL()
+        public DataTable ObtenerCalificaciones(int idEstudiante, string periodo)
         {
-            reporteDAL =
-                new ReporteDAL();
+            Validar(idEstudiante, periodo);
+            return reporteDAL.ObtenerCalificaciones(idEstudiante, periodo);
         }
 
-        // =====================================================
-        // OBTENER CALIFICACIONES
-        // =====================================================
-
-        public DataTable ObtenerCalificaciones(
-            string estudiante,
-            string grado,
-            string periodo)
+        public decimal ObtenerPromedio(int idEstudiante, string periodo)
         {
-            if (string.IsNullOrWhiteSpace(estudiante))
-            {
-                throw new Exception(
-                    "Debe seleccionar un estudiante.");
-            }
+            Validar(idEstudiante, periodo);
+            return reporteDAL.ObtenerPromedio(idEstudiante, periodo);
+        }
 
-            if (string.IsNullOrWhiteSpace(grado))
-            {
-                throw new Exception(
-                    "Debe seleccionar un grado.");
-            }
-
+        private static void Validar(int idEstudiante, string periodo)
+        {
+            if (idEstudiante <= 0)
+                throw new ArgumentException("Debe seleccionar un estudiante.");
             if (string.IsNullOrWhiteSpace(periodo))
-            {
-                throw new Exception(
-                    "Debe seleccionar un periodo.");
-            }
-
-            return reporteDAL.ObtenerCalificaciones(
-                estudiante,
-                grado,
-                periodo);
-        }
-
-        // =====================================================
-        // OBTENER PROMEDIO
-        // =====================================================
-
-        public decimal ObtenerPromedio(
-            string estudiante,
-            string grado,
-            string periodo)
-        {
-            return reporteDAL.ObtenerPromedio(
-                estudiante,
-                grado,
-                periodo);
+                throw new ArgumentException("Debe seleccionar un periodo.");
         }
     }
 }
