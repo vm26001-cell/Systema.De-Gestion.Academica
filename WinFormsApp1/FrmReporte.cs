@@ -1,208 +1,152 @@
-﻿using System;
 using System.Data;
-using System.Windows.Forms;
 using Systema.De_Gestion.Academica.BL;
+using Systema.De_Gestion.Academica.EN;
+using Systema.De_Gestion.Academica.LN;
 
 namespace Systema.De_Gestion.Academica.UI
 {
     public partial class FrmReporte : Form
     {
-        private readonly ReporteBL reporteBL;
+        private readonly ReporteBL reporteBL = new ReporteBL();
+        private readonly CatalogoBL catalogoBL = new CatalogoBL();
+        private readonly Usuario? usuarioActual;
+        private bool configurando;
 
-        public FrmReporte()
+        public FrmReporte() : this(null)
         {
+        }
+
+        public FrmReporte(Usuario? usuario)
+        {
+            usuarioActual = usuario;
             InitializeComponent();
-
-            reporteBL =
-                new ReporteBL();
-
-            ConfigurarFormulario();
+            cmbGrado.SelectedIndexChanged += (_, _) => CargarEstudiantesDelGrado();
+            CargarFiltros();
         }
 
-        // =====================================================
-        // CONFIGURAR FORMULARIO
-        // =====================================================
-
-        private void ConfigurarFormulario()
-        {
-            if (cmbTipoReporte.Items.Count > 0)
-            {
-                cmbTipoReporte.SelectedIndex = 0;
-            }
-
-            if (cmbPeriodo.Items.Count > 0)
-            {
-                cmbPeriodo.SelectedIndex = 0;
-            }
-
-            if (cmbGrado.Items.Count > 0)
-            {
-                cmbGrado.SelectedIndex = 0;
-            }
-
-            if (cmbEstudiante.Items.Count > 0)
-            {
-                cmbEstudiante.SelectedIndex = 0;
-            }
-        }
-
-        // =====================================================
-        // BOTÓN GENERAR
-        // =====================================================
-
-        private void btnGenerar_Click(
-            object sender,
-            EventArgs e)
+        private void CargarFiltros()
         {
             try
             {
-                // =============================================
-                // VALIDAR ESTUDIANTE
-                // =============================================
+                configurando = true;
+                if (cmbTipoReporte.Items.Count > 0)
+                    cmbTipoReporte.SelectedIndex = 0;
+                if (cmbPeriodo.Items.Count > 0)
+                    cmbPeriodo.SelectedIndex = 0;
 
-                if (cmbEstudiante.SelectedIndex == -1)
+                bool restringido = usuarioActual?.Rol is "Estudiante" or "Padre";
+                if (restringido)
                 {
-                    MessageBox.Show(
-                        "Seleccione un estudiante.",
-                        "Aviso",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-
-                    return;
+                    CargarEstudianteVinculado();
+                    cmbGrado.Enabled = false;
+                    cmbEstudiante.Enabled = false;
                 }
-
-                // =============================================
-                // VALIDAR GRADO
-                // =============================================
-
-                if (cmbGrado.SelectedIndex == -1)
+                else
                 {
-                    MessageBox.Show(
-                        "Seleccione un grado.",
-                        "Aviso",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-
-                    return;
+                    Enlazar(cmbGrado, catalogoBL.ObtenerGrados());
+                    configurando = false;
+                    CargarEstudiantesDelGrado();
                 }
-
-                // =============================================
-                // VALIDAR PERIODO
-                // =============================================
-
-                if (cmbPeriodo.SelectedIndex == -1)
-                {
-                    MessageBox.Show(
-                        "Seleccione un periodo.",
-                        "Aviso",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-
-                    return;
-                }
-
-                string estudiante =
-                    cmbEstudiante.Text;
-
-                string grado =
-                    cmbGrado.Text;
-
-                string periodo =
-                    cmbPeriodo.Text;
-
-                // =============================================
-                // OBTENER DATOS
-                // =============================================
-
-                DataTable datos =
-     reporteBL.ObtenerCalificaciones(
-         estudiante,
-         grado,
-         periodo);
-
-                // =============================================
-                // MOSTRAR DATOS
-                // =============================================
-
-                // Quitar las columnas creadas anteriormente
-                dgvReporte.DataSource = null;
-                dgvReporte.Columns.Clear();
-
-                // Crear las columnas automáticamente desde SQL
-                dgvReporte.AutoGenerateColumns = true;
-
-                // Cargar los datos
-                dgvReporte.DataSource = datos;
-
-                // Ajustar las columnas
-                dgvReporte.AutoSizeColumnsMode =
-                    DataGridViewAutoSizeColumnsMode.Fill;
-
-                // =============================================
-                // MOSTRAR DATOS DEL ESTUDIANTE
-                // =============================================
-
-                lblDatosEstudiante.Text =
-                    "Estudiante: " +
-                    estudiante;
-
-                lblDatosGrado.Text =
-                    "Grado / Sección: " +
-                    grado;
-
-                lblDatosPeriodo.Text =
-                    "Periodo: " +
-                    periodo;
-
-                // =============================================
-                // PROMEDIO
-                // =============================================
-
-                decimal promedio =
-                    reporteBL.ObtenerPromedio(
-                        estudiante,
-                        grado,
-                        periodo);
-
-                lblPromedio.Text =
-                    promedio.ToString("0.00");
-
-                // =============================================
-                // COMPROBAR SI HAY DATOS
-                // =============================================
-
-                if (datos.Rows.Count == 0)
-                {
-                    MessageBox.Show(
-                        "No se encontraron calificaciones para " +
-                        estudiante +
-                        " en el " +
-                        periodo +
-                        ".",
-                        "Sin resultados",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information);
-
-                    lblPromedio.Text =
-                        "0.00";
-
-                    return;
-                }
-
-                MessageBox.Show(
-                    "Reporte generado correctamente.",
-                    "Reporte",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Error al generar el reporte:\n\n" +
-                    ex.Message,
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show("No se pudieron cargar los filtros.\n\n" + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                configurando = false;
+            }
+        }
+
+        private void CargarEstudianteVinculado()
+        {
+            if (usuarioActual?.IdEstudiante is not int idEstudiante)
+                throw new UnauthorizedAccessException(
+                    "La cuenta no tiene un estudiante vinculado. Comuníquese con el administrador.");
+
+            Estudiante estudiante = catalogoBL.ObtenerEstudiantePorId(idEstudiante)
+                ?? throw new InvalidOperationException("El estudiante vinculado ya no existe.");
+
+            OpcionCatalogo? grado = catalogoBL.ObtenerGrados().FirstOrDefault(
+                g => string.Equals(g.Nombre, estudiante.Grado + " " + estudiante.Seccion,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (grado == null)
+                throw new InvalidOperationException("El grado del estudiante no está configurado.");
+
+            Enlazar(cmbGrado, new List<OpcionCatalogo> { grado });
+            Enlazar(cmbEstudiante, new List<OpcionCatalogo>
+            {
+                new OpcionCatalogo
+                {
+                    Id = estudiante.IdEstudiante,
+                    Nombre = estudiante.Nombre + " " + estudiante.Apellido
+                }
+            });
+        }
+
+        private void CargarEstudiantesDelGrado()
+        {
+            if (configurando || cmbGrado.SelectedItem is not OpcionCatalogo grado)
+                return;
+
+            List<OpcionCatalogo> opciones = catalogoBL
+                .ObtenerEstudiantesPorGrado(grado.Id)
+                .Select(e => new OpcionCatalogo
+                {
+                    Id = e.IdEstudiante,
+                    Nombre = e.Nombre + " " + e.Apellido
+                })
+                .ToList();
+            Enlazar(cmbEstudiante, opciones);
+        }
+
+        private static void Enlazar(ComboBox combo, List<OpcionCatalogo> opciones)
+        {
+            combo.DataSource = null;
+            combo.DisplayMember = nameof(OpcionCatalogo.Nombre);
+            combo.ValueMember = nameof(OpcionCatalogo.Id);
+            combo.DataSource = opciones;
+        }
+
+        private void btnGenerar_Click(object sender, EventArgs e)
+        {
+            if (cmbEstudiante.SelectedItem is not OpcionCatalogo estudiante ||
+                cmbGrado.SelectedItem is not OpcionCatalogo grado ||
+                string.IsNullOrWhiteSpace(cmbPeriodo.Text))
+            {
+                MessageBox.Show("Seleccione estudiante, grado y periodo.", "Validación",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                string periodo = cmbPeriodo.Text;
+                DataTable datos = reporteBL.ObtenerCalificaciones(estudiante.Id, periodo);
+
+                dgvReporte.DataSource = null;
+                dgvReporte.Columns.Clear();
+                dgvReporte.AutoGenerateColumns = true;
+                dgvReporte.DataSource = datos;
+                dgvReporte.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+
+                lblDatosEstudiante.Text = "Estudiante: " + estudiante.Nombre;
+                lblDatosGrado.Text = "Grado / Sección: " + grado.Nombre;
+                lblDatosPeriodo.Text = "Periodo: " + periodo;
+                lblPromedio.Text = reporteBL.ObtenerPromedio(estudiante.Id, periodo).ToString("0.00");
+
+                if (datos.Rows.Count == 0)
+                {
+                    MessageBox.Show("No se encontraron calificaciones para el periodo seleccionado.",
+                        "Sin resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error al generar el reporte.\n\n" + ex.Message,
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

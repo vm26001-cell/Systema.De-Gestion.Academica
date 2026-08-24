@@ -1,147 +1,88 @@
-﻿using System;
-using System.Windows.Forms;
+using Systema.De_Gestion.Academica.EN;
 
 namespace Systema.De_Gestion.Academica.UI
 {
     public partial class FrmPortalAdministrador : Form
     {
-        private string rolUsuario;
+        private readonly Usuario usuarioActual;
 
-        public FrmPortalAdministrador(string rol)
+        public FrmPortalAdministrador(Usuario usuario)
         {
+            usuarioActual = usuario ?? throw new ArgumentNullException(nameof(usuario));
             InitializeComponent();
-
-            rolUsuario = rol;
-
             ConfigurarPermisos();
         }
 
         private void ConfigurarPermisos()
         {
-            // Primero ocultamos todo
-            buttonEstudiantes.Visible = false;
-            buttonDocentes.Visible = false;
-            buttonMaterias.Visible = false;
-            buttonCalificaciones.Visible = false;
-            buttonAsistencia.Visible = false;
-            buttonReportes.Visible = false;
-            buttonHorarios.Visible = false;
+            OcultarModulos();
 
-            groupEstudiantes.Visible = false;
-            groupDocentes.Visible = false;
-            groupMaterias.Visible = false;
-            groupCalificaciones.Visible = false;
-            groupAsistencia.Visible = false;
-            groupReportes.Visible = false;
-            groupHorarios.Visible = false;
-
-            // ADMINISTRADOR
-            if (rolUsuario == "Administrador")
+            switch (usuarioActual.Rol)
             {
-                buttonEstudiantes.Visible = true;
-                buttonDocentes.Visible = true;
-                buttonMaterias.Visible = true;
-                buttonCalificaciones.Visible = true;
-                buttonAsistencia.Visible = true;
-                buttonReportes.Visible = true;
-                buttonHorarios.Visible = true;
+                case "Administrador":
+                    Mostrar(buttonEstudiantes, groupEstudiantes);
+                    Mostrar(buttonDocentes, groupDocentes);
+                    Mostrar(buttonMaterias, groupMaterias);
+                    Mostrar(buttonCalificaciones, groupCalificaciones);
+                    Mostrar(buttonAsistencia, groupAsistencia);
+                    Mostrar(buttonReportes, groupReportes);
+                    Mostrar(buttonHorarios, groupHorarios);
+                    labelTitulo.Text = "Portal Administrador";
+                    break;
 
-                groupEstudiantes.Visible = true;
-                groupDocentes.Visible = true;
-                groupMaterias.Visible = true;
-                groupCalificaciones.Visible = true;
-                groupAsistencia.Visible = true;
-                groupReportes.Visible = true;
-                groupHorarios.Visible = true;
+                case "Docente":
+                    Mostrar(buttonCalificaciones, groupCalificaciones);
+                    Mostrar(buttonAsistencia, groupAsistencia);
+                    Mostrar(buttonReportes, groupReportes);
+                    Mostrar(buttonHorarios, groupHorarios);
+                    labelTitulo.Text = "Portal Docente";
+                    break;
 
-                labelTitulo.Text = "Portal Administrador";
-                labelBienvenida.Text = "Bienvenido, Administrador";
+                case "Estudiante":
+                    Mostrar(buttonReportes, groupReportes);
+                    Mostrar(buttonHorarios, groupHorarios);
+                    labelTitulo.Text = "Portal Estudiante";
+                    break;
+
+                case "Padre":
+                    Mostrar(buttonReportes, groupReportes);
+                    Mostrar(buttonHorarios, groupHorarios);
+                    labelTitulo.Text = "Portal Padre";
+                    break;
+
+                default:
+                    throw new UnauthorizedAccessException("El rol del usuario no está autorizado.");
             }
 
-            // DOCENTE
-            else if (rolUsuario == "Docente")
+            labelBienvenida.Text = "Bienvenido, " + usuarioActual.UsuarioNombre;
+        }
+
+        private void OcultarModulos()
+        {
+            foreach (Control control in new Control[]
             {
-                buttonCalificaciones.Visible = true;
-                buttonAsistencia.Visible = true;
-                buttonHorarios.Visible = true;
-
-                groupCalificaciones.Visible = true;
-                groupAsistencia.Visible = true;
-                groupHorarios.Visible = true;
-
-                labelTitulo.Text = "Portal Docente";
-                labelBienvenida.Text = "Bienvenido, Docente";
-            }
-
-            // ESTUDIANTE
-            else if (rolUsuario == "Estudiante")
+                buttonEstudiantes, buttonDocentes, buttonMaterias,
+                buttonCalificaciones, buttonAsistencia, buttonReportes, buttonHorarios,
+                groupEstudiantes, groupDocentes, groupMaterias,
+                groupCalificaciones, groupAsistencia, groupReportes, groupHorarios
+            })
             {
-                buttonCalificaciones.Visible = true;
-                buttonAsistencia.Visible = true;
-                buttonHorarios.Visible = true;
-
-                groupCalificaciones.Visible = true;
-                groupAsistencia.Visible = true;
-                groupHorarios.Visible = true;
-
-                labelTitulo.Text = "Portal Estudiante";
-                labelBienvenida.Text = "Bienvenido, Estudiante";
-            }
-
-            // PADRE
-            else if (rolUsuario == "Padre")
-            {
-                buttonCalificaciones.Visible = true;
-                buttonAsistencia.Visible = true;
-
-                groupCalificaciones.Visible = true;
-                groupAsistencia.Visible = true;
-
-                labelTitulo.Text = "Portal Padre";
-                labelBienvenida.Text = "Bienvenido, Padre";
+                control.Visible = false;
             }
         }
 
-        private void buttonEstudiantes_Click(object sender, EventArgs e)
+        private static void Mostrar(Control boton, Control tarjeta)
         {
-            FrmEstudiante frm = new FrmEstudiante();
-            frm.Show();
+            boton.Visible = true;
+            tarjeta.Visible = true;
         }
 
-        private void buttonDocentes_Click(object sender, EventArgs e)
-        {
-            FrmDocente frm = new FrmDocente();
-            frm.Show();
-        }
-
-        private void buttonMaterias_Click(object sender, EventArgs e)
-        {
-            FrmMateria frm = new FrmMateria();
-            frm.Show();
-        }
-
-        private void buttonCalificaciones_Click(object sender, EventArgs e)
-        {
-            FrmCalificacion frm = new FrmCalificacion();
-            frm.Show();
-        }
-
-        private void buttonAsistencia_Click(object sender, EventArgs e)
-        {
-            FrmAsistencia frm = new FrmAsistencia();
-            frm.Show();
-        }
-
-        private void buttonReportes_Click(object sender, EventArgs e)
-        {
-            FrmReporte frm = new FrmReporte();
-            frm.Show();
-        }
-
-        private void buttonHorarios_Click(object sender, EventArgs e)
-        {
-            FrmHorario frm = new FrmHorario();
-            frm.Show();
-        }
+        private void buttonEstudiantes_Click(object sender, EventArgs e) => new FrmEstudiante().ShowDialog(this);
+        private void buttonDocentes_Click(object sender, EventArgs e) => new FrmDocente().ShowDialog(this);
+        private void buttonMaterias_Click(object sender, EventArgs e) => new FrmMateria().ShowDialog(this);
+        private void buttonCalificaciones_Click(object sender, EventArgs e) => new FrmCalificacion().ShowDialog(this);
+        private void buttonAsistencia_Click(object sender, EventArgs e) => new FrmAsistencia().ShowDialog(this);
+        private void buttonReportes_Click(object sender, EventArgs e) => new FrmReporte(usuarioActual).ShowDialog(this);
+        private void buttonHorarios_Click(object sender, EventArgs e) => new FrmHorario().ShowDialog(this);
     }
 }

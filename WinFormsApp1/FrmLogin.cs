@@ -1,5 +1,3 @@
-﻿using System;
-using System.Windows.Forms;
 using Systema.De_Gestion.Academica.EN;
 using Systema.De_Gestion.Academica.LN;
 
@@ -7,21 +5,22 @@ namespace Systema.De_Gestion.Academica.UI
 {
     public partial class FrmLogin : Form
     {
-        private readonly LoginBL loginBL;
+        private readonly LoginBL loginBL = new LoginBL();
 
         public FrmLogin()
         {
             InitializeComponent();
 
-            loginBL = new LoginBL();
-
             cmbRol.Items.Clear();
-            cmbRol.Items.Add("Administrador");
-            cmbRol.Items.Add("Docente");
-            cmbRol.Items.Add("Padre");
-            cmbRol.Items.Add("Estudiante");
-
+            cmbRol.Items.AddRange(new object[]
+            {
+                "Administrador",
+                "Docente",
+                "Padre",
+                "Estudiante"
+            });
             cmbRol.SelectedIndex = 0;
+            AcceptButton = btnIngresar;
         }
 
         private void lblOlvide_Click(object sender, EventArgs e)
@@ -37,67 +36,66 @@ namespace Systema.De_Gestion.Academica.UI
         {
             string usuario = txtUsuario.Text.Trim();
             string contrasena = txtContrasena.Text;
-            string rol = cmbRol.SelectedItem?.ToString();
+            string rol = cmbRol.SelectedItem?.ToString() ?? string.Empty;
 
             if (string.IsNullOrWhiteSpace(usuario))
             {
-                MessageBox.Show("Ingrese su usuario.");
-                txtUsuario.Focus();
+                MostrarValidacion("Ingrese su usuario.", txtUsuario);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(contrasena))
             {
-                MessageBox.Show("Ingrese su contraseña.");
-                txtContrasena.Focus();
+                MostrarValidacion("Ingrese su contraseña.", txtContrasena);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(rol))
             {
-                MessageBox.Show("Seleccione un rol.");
-                cmbRol.Focus();
+                MostrarValidacion("Seleccione un rol.", cmbRol);
                 return;
             }
 
             try
             {
-                Usuario usuarioEncontrado =
-                    loginBL.ValidarLogin(
-                        usuario,
-                        contrasena,
-                        rol);
-
-                if (usuarioEncontrado != null)
-                {
-                    MessageBox.Show(
-                        "Bienvenido " + usuarioEncontrado.UsuarioNombre);
-
-                    FrmPortalAdministrador principal = new FrmPortalAdministrador(rol);
-                    principal.Show();
-
-                    this.Hide();
-                }
-                else
+                Usuario? usuarioEncontrado = loginBL.ValidarLogin(usuario, contrasena, rol);
+                if (usuarioEncontrado == null)
                 {
                     MessageBox.Show(
                         "Usuario, contraseña o rol incorrectos.",
                         "Acceso denegado",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
-
                     txtContrasena.Clear();
                     txtContrasena.Focus();
+                    return;
                 }
+
+                MessageBox.Show(
+                    "Bienvenido, " + usuarioEncontrado.UsuarioNombre + ".",
+                    "Acceso correcto",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                var principal = new FrmPortalAdministrador(usuarioEncontrado);
+                principal.FormClosed += (_, _) => Close();
+                principal.Show();
+                Hide();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Error al iniciar sesión:\n\n" + ex.Message,
+                    "No fue posible iniciar sesión.\n\n" + ex.Message,
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+        }
+
+        private static void MostrarValidacion(string mensaje, Control control)
+        {
+            MessageBox.Show(mensaje, "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            control.Focus();
         }
     }
 }
