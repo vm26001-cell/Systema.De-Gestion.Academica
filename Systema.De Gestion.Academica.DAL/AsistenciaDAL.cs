@@ -1,167 +1,117 @@
-﻿using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient;
+using System.Data;
 using Systema.De_Gestion.Academica.EN;
 
 namespace Systema.De_Gestion.Academica.DAL
 {
     public class AsistenciaDAL
     {
-        private readonly DBComun db;
-
-        public AsistenciaDAL()
-        {
-            db = new DBComun();
-        }
-
-        // =====================================================
-        // INSERTAR ASISTENCIA
-        // =====================================================
+        private readonly DBComun db = new DBComun();
 
         public bool Insertar(Asistencia asistencia)
         {
-            using (SqlConnection conexion = db.ObtenerConexion())
-            {
-                string consulta = @"
+            return GuardarLote(new[] { asistencia }) == 1;
+        }
+
+        public int GuardarLote(IReadOnlyCollection<Asistencia> asistencias)
+        {
+            if (asistencias.Count == 0)
+                return 0;
+
+            const string sql = @"
+                UPDATE Asistencia
+                SET nombre_estudiante = @nombreEstudiante,
+                    nombre_grado = @nombreGrado,
+                    nombre_materia = @nombreMateria,
+                    nombre_docente = @nombreDocente,
+                    estado = @estado
+                WHERE id_estudiante = @idEstudiante
+                  AND id_materia = @idMateria
+                  AND fecha = @fecha;
+
+                IF @@ROWCOUNT = 0
+                BEGIN
                     INSERT INTO Asistencia
-                    (
-                        id_estudiante,
-                        nombre_estudiante,
-                        id_grado,
-                        nombre_grado,
-                        id_materia,
-                        nombre_materia,
-                        id_docente,
-                        nombre_docente,
-                        fecha,
-                        estado
-                    )
+                    (id_estudiante, nombre_estudiante, id_grado, nombre_grado,
+                     id_materia, nombre_materia, id_docente, nombre_docente,
+                     fecha, estado)
                     VALUES
-                    (
-                        @id_estudiante,
-                        @nombre_estudiante,
-                        @id_grado,
-                        @nombre_grado,
-                        @id_materia,
-                        @nombre_materia,
-                        @id_docente,
-                        @nombre_docente,
-                        @fecha,
-                        @estado
-                    )";
+                    (@idEstudiante, @nombreEstudiante, @idGrado, @nombreGrado,
+                     @idMateria, @nombreMateria, @idDocente, @nombreDocente,
+                     @fecha, @estado);
+                END;";
 
-                using (SqlCommand comando =
-                    new SqlCommand(consulta, conexion))
+            using SqlConnection conexion = db.ObtenerConexion();
+            conexion.Open();
+            using SqlTransaction transaccion = conexion.BeginTransaction();
+
+            try
+            {
+                using SqlCommand comando = new SqlCommand(sql, conexion, transaccion);
+                comando.Parameters.Add("@idEstudiante", SqlDbType.Int);
+                comando.Parameters.Add("@nombreEstudiante", SqlDbType.NVarChar, 120);
+                comando.Parameters.Add("@idGrado", SqlDbType.Int);
+                comando.Parameters.Add("@nombreGrado", SqlDbType.NVarChar, 60);
+                comando.Parameters.Add("@idMateria", SqlDbType.Int);
+                comando.Parameters.Add("@nombreMateria", SqlDbType.NVarChar, 100);
+                comando.Parameters.Add("@idDocente", SqlDbType.Int);
+                comando.Parameters.Add("@nombreDocente", SqlDbType.NVarChar, 120);
+                comando.Parameters.Add("@fecha", SqlDbType.Date);
+                comando.Parameters.Add("@estado", SqlDbType.NVarChar, 20);
+
+                int guardadas = 0;
+                foreach (Asistencia item in asistencias)
                 {
-                    // =========================================
-                    // ESTUDIANTE
-                    // =========================================
-
-                    comando.Parameters.Add(
-                        "@id_estudiante",
-                        System.Data.SqlDbType.Int
-                    ).Value = asistencia.IdEstudiante;
-
-                    comando.Parameters.Add(
-                        "@nombre_estudiante",
-                        System.Data.SqlDbType.VarChar,
-                        100
-                    ).Value =
-                        string.IsNullOrWhiteSpace(
-                            asistencia.NombreEstudiante)
-                        ? (object)System.DBNull.Value
-                        : asistencia.NombreEstudiante;
-
-                    // =========================================
-                    // GRADO
-                    // =========================================
-
-                    comando.Parameters.Add(
-                        "@id_grado",
-                        System.Data.SqlDbType.Int
-                    ).Value = asistencia.IdGrado;
-
-                    comando.Parameters.Add(
-                        "@nombre_grado",
-                        System.Data.SqlDbType.VarChar,
-                        50
-                    ).Value =
-                        string.IsNullOrWhiteSpace(
-                            asistencia.NombreGrado)
-                        ? (object)System.DBNull.Value
-                        : asistencia.NombreGrado;
-
-                    // =========================================
-                    // MATERIA
-                    // =========================================
-
-                    comando.Parameters.Add(
-                        "@id_materia",
-                        System.Data.SqlDbType.Int
-                    ).Value = asistencia.IdMateria;
-
-                    comando.Parameters.Add(
-                        "@nombre_materia",
-                        System.Data.SqlDbType.VarChar,
-                        100
-                    ).Value =
-                        string.IsNullOrWhiteSpace(
-                            asistencia.NombreMateria)
-                        ? (object)System.DBNull.Value
-                        : asistencia.NombreMateria;
-
-                    // =========================================
-                    // DOCENTE
-                    // =========================================
-
-                    comando.Parameters.Add(
-                        "@id_docente",
-                        System.Data.SqlDbType.Int
-                    ).Value = asistencia.IdDocente;
-
-                    comando.Parameters.Add(
-                        "@nombre_docente",
-                        System.Data.SqlDbType.VarChar,
-                        100
-                    ).Value =
-                        string.IsNullOrWhiteSpace(
-                            asistencia.NombreDocente)
-                        ? (object)System.DBNull.Value
-                        : asistencia.NombreDocente;
-
-                    // =========================================
-                    // FECHA
-                    // =========================================
-
-                    comando.Parameters.Add(
-                        "@fecha",
-                        System.Data.SqlDbType.Date
-                    ).Value = asistencia.Fecha.Date;
-
-                    // =========================================
-                    // ESTADO
-                    // =========================================
-
-                    comando.Parameters.Add(
-                        "@estado",
-                        System.Data.SqlDbType.VarChar,
-                        20
-                    ).Value = asistencia.Estado;
-
-                    // =========================================
-                    // ABRIR CONEXIÓN
-                    // =========================================
-
-                    conexion.Open();
-
-                    // =========================================
-                    // EJECUTAR INSERT
-                    // =========================================
-
-                    int filasAfectadas =
-                        comando.ExecuteNonQuery();
-
-                    return filasAfectadas > 0;
+                    comando.Parameters["@idEstudiante"].Value = item.IdEstudiante;
+                    comando.Parameters["@nombreEstudiante"].Value = item.NombreEstudiante;
+                    comando.Parameters["@idGrado"].Value = item.IdGrado;
+                    comando.Parameters["@nombreGrado"].Value = item.NombreGrado;
+                    comando.Parameters["@idMateria"].Value = item.IdMateria;
+                    comando.Parameters["@nombreMateria"].Value = item.NombreMateria;
+                    comando.Parameters["@idDocente"].Value = item.IdDocente;
+                    comando.Parameters["@nombreDocente"].Value = item.NombreDocente;
+                    comando.Parameters["@fecha"].Value = item.Fecha.Date;
+                    comando.Parameters["@estado"].Value = item.Estado;
+                    comando.ExecuteNonQuery();
+                    guardadas++;
                 }
+
+                transaccion.Commit();
+                return guardadas;
             }
+            catch
+            {
+                transaccion.Rollback();
+                throw;
+            }
+        }
+
+        public Dictionary<int, string> ObtenerEstados(
+            int idGrado,
+            int idMateria,
+            DateTime fecha)
+        {
+            const string sql = @"
+                SELECT id_estudiante, estado
+                FROM Asistencia
+                WHERE id_grado = @idGrado
+                  AND id_materia = @idMateria
+                  AND fecha = @fecha;";
+
+            var estados = new Dictionary<int, string>();
+            using SqlConnection conexion = db.ObtenerConexion();
+            using SqlCommand comando = new SqlCommand(sql, conexion);
+            comando.Parameters.Add("@idGrado", SqlDbType.Int).Value = idGrado;
+            comando.Parameters.Add("@idMateria", SqlDbType.Int).Value = idMateria;
+            comando.Parameters.Add("@fecha", SqlDbType.Date).Value = fecha.Date;
+            conexion.Open();
+
+            using SqlDataReader reader = comando.ExecuteReader();
+            while (reader.Read())
+                estados[Convert.ToInt32(reader["id_estudiante"])] =
+                    Convert.ToString(reader["estado"]) ?? "Presente";
+
+            return estados;
         }
     }
 }
