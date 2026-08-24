@@ -1,5 +1,5 @@
-﻿using System;
 using Microsoft.Data.SqlClient;
+using System.Data;
 using Systema.De_Gestion.Academica.EN;
 
 namespace Systema.De_Gestion.Academica.DAL
@@ -8,98 +8,56 @@ namespace Systema.De_Gestion.Academica.DAL
     {
         private readonly DBComun db = new DBComun();
 
-        public Usuario ValidarLogin(
-            string usuario,
-            string contrasena,
-            string rol)
+        public Usuario? BuscarUsuarioActivo(string nombreUsuario, string rol)
         {
-            Usuario usuarioEncontrado = null;
+            const string consulta = @"
+                SELECT TOP (1)
+                    u.id_usuario,
+                    u.nombre_usuario,
+                    u.[password],
+                    r.nombre AS rol,
+                    u.id_estudiante
+                FROM Usuario u
+                INNER JOIN Rol r ON r.id_rol = u.id_rol
+                WHERE u.nombre_usuario = @usuario
+                  AND r.nombre = @rol
+                  AND u.estado = 'Activo';";
 
-            int idRol;
+            using SqlConnection conexion = db.ObtenerConexion();
+            using SqlCommand comando = new SqlCommand(consulta, conexion);
+            comando.Parameters.Add("@usuario", SqlDbType.NVarChar, 50).Value = nombreUsuario;
+            comando.Parameters.Add("@rol", SqlDbType.NVarChar, 30).Value = rol;
+            conexion.Open();
 
-            switch (rol)
+            using SqlDataReader reader = comando.ExecuteReader();
+            if (!reader.Read())
+                return null;
+
+            return new Usuario
             {
-                case "Administrador":
-                    idRol = 1;
-                    break;
+                IdUsuario = Convert.ToInt32(reader["id_usuario"]),
+                UsuarioNombre = Convert.ToString(reader["nombre_usuario"]) ?? string.Empty,
+                Contrasena = Convert.ToString(reader["password"]) ?? string.Empty,
+                Rol = Convert.ToString(reader["rol"]) ?? string.Empty,
+                IdEstudiante = reader["id_estudiante"] == DBNull.Value
+                    ? null
+                    : Convert.ToInt32(reader["id_estudiante"])
+            };
+        }
 
-                case "Docente":
-                    idRol = 2;
-                    break;
+        public void ActualizarContrasena(int idUsuario, string nuevoHash)
+        {
+            const string consulta = @"
+                UPDATE Usuario
+                SET [password] = @hash
+                WHERE id_usuario = @idUsuario;";
 
-                case "Padre":
-                    idRol = 3;
-                    break;
-
-                case "Estudiante":
-                    idRol = 4;
-                    break;
-
-                default:
-                    return null;
-            }
-
-            using (SqlConnection conexion = db.ObtenerConexion())
-            {
-                string consulta = @"
-                    SELECT
-                        id_usuario,
-                        nombre_usuario,
-                        [password],
-                        estado,
-                        id_rol
-                    FROM Usuario
-                    WHERE nombre_usuario = @usuario
-                    AND [password] = @contrasena
-                    AND id_rol = @idRol
-                    AND estado = 'Activo'";
-
-                using (SqlCommand comando =
-                    new SqlCommand(consulta, conexion))
-                {
-                    comando.Parameters.AddWithValue(
-                        "@usuario",
-                        usuario);
-
-                    comando.Parameters.AddWithValue(
-                        "@contrasena",
-                        contrasena);
-
-                    comando.Parameters.AddWithValue(
-                        "@idRol",
-                        idRol);
-
-                    conexion.Open();
-
-                    using (SqlDataReader reader =
-                        comando.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            usuarioEncontrado = new Usuario
-                            {
-                                IdUsuario =
-                                    Convert.ToInt32(
-                                        reader["id_usuario"]),
-
-                                UsuarioNombre =
-                                    reader["nombre_usuario"]
-                                    .ToString(),
-
-                                Contrasena =
-                                    reader["password"]
-                                    .ToString(),
-
-                                Rol =
-                                    reader["id_rol"]
-                                    .ToString()
-                            };
-                        }
-                    }
-                }
-            }
-
-            return usuarioEncontrado;
+            using SqlConnection conexion = db.ObtenerConexion();
+            using SqlCommand comando = new SqlCommand(consulta, conexion);
+            comando.Parameters.Add("@hash", SqlDbType.NVarChar, 300).Value = nuevoHash;
+            comando.Parameters.Add("@idUsuario", SqlDbType.Int).Value = idUsuario;
+            conexion.Open();
+            comando.ExecuteNonQuery();
         }
     }
 }
